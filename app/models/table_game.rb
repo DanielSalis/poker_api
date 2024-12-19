@@ -1,0 +1,2 @@
+class TableGame < ApplicationRecord
+end
