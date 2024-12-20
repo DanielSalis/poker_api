@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_19_181433) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_20_165016) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -20,6 +20,9 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_19_181433) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "max_players"
+    t.string "name"
+    t.jsonb "cards", default: {}
+    t.string "stage"
   end
 
   create_table "player_games", force: :cascade do |t|
@@ -31,6 +34,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_19_181433) do
     t.integer "last_position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "bet"
+    t.string "last_action"
     t.index ["game_id"], name: "index_player_games_on_game_id"
     t.index ["player_id"], name: "index_player_games_on_player_id"
   end
@@ -42,22 +47,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_19_181433) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "table_games", force: :cascade do |t|
-    t.uuid "game_id", null: false
-    t.jsonb "cards"
-    t.uuid "user_current_playing_id", null: false
-    t.integer "round_pot", default: 0
-    t.string "stage", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "current_bet"
-    t.string "last_action"
-    t.index ["game_id"], name: "index_table_games_on_game_id"
-    t.index ["user_current_playing_id"], name: "index_table_games_on_user_current_playing_id"
-  end
-
   add_foreign_key "player_games", "games"
   add_foreign_key "player_games", "players"
-  add_foreign_key "table_games", "games"
-  add_foreign_key "table_games", "players", column: "user_current_playing_id"
 end
