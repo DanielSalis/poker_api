@@ -7,11 +7,16 @@ Rails.application.routes.draw do
 
   resources :players
 
+  resources :player_games
+
   resources :games do
     member do
       post :join
       delete :leave
       post :start
+      post :action
+      post :next_phase, path: "next-phase"
+      post :end
     end
   end
 

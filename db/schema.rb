@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_21_224024) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_22_225931) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,7 +21,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_21_224024) do
 
   create_table "games", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status", default: "waiting", null: false
-    t.decimal "pot", precision: 10, scale: 2
+    t.integer "pot"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "max_players"
@@ -30,12 +30,13 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_21_224024) do
     t.jsonb "comunity_cards", default: []
     t.jsonb "available_cards", default: []
     t.integer "phase", default: 0
+    t.boolean "is_showdown", default: false
   end
 
   create_table "player_games", force: :cascade do |t|
     t.uuid "player_id", null: false
     t.uuid "game_id", null: false
-    t.decimal "chips", precision: 10, scale: 2
+    t.integer "chips"
     t.string "status", null: false
     t.jsonb "hand"
     t.integer "last_position"
@@ -49,7 +50,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_21_224024) do
 
   create_table "players", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "username", limit: 64, null: false
-    t.decimal "balance", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "balance", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

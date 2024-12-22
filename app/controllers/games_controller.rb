@@ -120,6 +120,41 @@ class GamesController < ApplicationController
     }
   end
 
+  def action
+    game = Game.find(params[:id])
+    if game.nil?
+      return render json: { message: "Game not found" }, status: :internal_server_error
+    end
+
+    player_game = PlayerGame.where(game: game, player_id: params[:player_id]).first
+    if player_game.nil?
+      return render json: { message: "Player not found in this game" }, status: :internal_server_error
+    elsif player_game.status != "active"
+      render json: { message: "Player not active to play" }, status: :forbidden
+    end
+
+    action_type = params[:action].to_s
+    amount = Integer(params[:amount].to_s)
+
+    case action_type
+    when "check"
+      player_game.bet = amount
+      game.pot = game.pot + amount
+    when "raise"
+      player_game.bet = player_game.bet + amount
+      game.pot = game.pot + amount
+    when "fold"
+      player_game.status = "folded"
+    when "showdown"
+      game.is_showdown = true
+    else
+      return render json: { message: "Invalid action" }, status: :internal_server_error
+    end
+
+    player_game.last_action = action
+
+  end
+
   def next_phase
     game = Game.find(params[:id])
     if game.nil?
@@ -130,13 +165,14 @@ class GamesController < ApplicationController
       return render json: { message: "Game must be ongoing to change phase" }, status: :internal_server_error
     end
 
-    player_games = PlayerGame.where(game_id: game.id)
+    player_games = PlayerGame.where(game_id: game.id).where.not(status: "eliminated")
     current_phase = game.phase
     current_community_cards = game.comunity_cards
 
     case current_phase
     when 1
       game.distribute_community_carts
+      game.is_showdown = false
     when 2
       game.withdraw_community_card
     when 3
@@ -162,7 +198,15 @@ class GamesController < ApplicationController
       return render json: { message: "Game not found" }, status: :internal_server_error
     end
 
-    players = PlayerGame.where(game_id: game.id, status: "active")
+    players = PlayerGame.where(game_id: game.id).where.not(status: "eliminated")
+
+    if players.size < 2
+      return render json: { message: "Game is over! Winner is:" + players.first.player.username }, status: :ok
+    end
+
+    players.each do |player|
+      player.status = "active"
+    end
 
     hands = players.map { |player| PokerHand.new(player.hand) }
 
