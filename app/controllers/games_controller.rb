@@ -122,7 +122,38 @@ class GamesController < ApplicationController
 
   def next_phase
     game = Game.find(params[:id])
+    if game.nil?
+      return render json: { message: "Game not found" }, status: :internal_server_error
+    end
 
+    if game.status != "ongoing"
+      return render json: { message: "Game must be ongoing to change phase" }, status: :internal_server_error
+    end
+
+    player_games = PlayerGame.where(game_id: game.id)
+    current_phase = game.phase
+    current_community_cards = game.comunity_cards
+
+    case current_phase
+    when 1
+      game.distribute_community_carts
+    when 2
+      game.withdraw_community_card
+    when 3
+      game.withdraw_community_card
+    else
+      # enters here when phase is 0
+      player_games.each do |pg|
+        pg.hand = game.distribute_cards_to_player
+      end
+    end
+
+    game.next_phase
+
+    render json: {
+      phase: current_phase,
+      community_cards: current_community_cards
+    }, status: :ok
   end
 
   def game_params
