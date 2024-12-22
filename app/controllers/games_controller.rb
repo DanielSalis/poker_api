@@ -156,6 +156,29 @@ class GamesController < ApplicationController
     }, status: :ok
   end
 
+  def end
+    game = Game.find(params[:id])
+    if game.nil?
+      return render json: { message: "Game not found" }, status: :internal_server_error
+    end
+
+    players = PlayerGame.where(game_id: game.id, status: "active")
+
+    hands = players.map { |player| PokerHand.new(player.hand) }
+
+    most_valuable_hand = hands.max
+
+    winners = players.select { | p |
+      PokerHand.new(p.hand) == most_valuable_hand
+    }
+
+    render json: {
+      winners: winners.first,
+      hand: most_valuable_hand.rank
+    }
+
+  end
+
   def game_params
     params.require(:game).permit(:name, :max_players)
   end
