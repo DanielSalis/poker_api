@@ -85,14 +85,45 @@ class GamesController < ApplicationController
   end
 
   def start
-  #   marcar estado do jogo como iniciado
-  # para cada player é preciso iniciar as cartas de cada um -> duas para cada
-  # para cada player é preciso iniciar a quantidade de fichas
-  # retornar um array com os players que entraram
-  # gerar cartas da mesa comunity_cards
-  # iniciar o pot com 0
+    game = Game.find(params[:id])
+    if game.nil?
+      return render json: { message: "Game not found" }
+    else
+      if game.status == "ongoing"
+        return render json: { message: "Game already started" }, status: :internal_server_error
+      end
+      game.status = "ongoing"
+    end
+
+    player_games = PlayerGame.where(game_id: game.id)
+    if player_games.empty?
+      return render json: { message: "At least one player needs to join" }, status: :internal_server_error
+    end
+
+    game.initialize_cards
+    game.pot = BigDecimal(0)
+
+    player_games.each do |pg|
+      pg.status = "active"
+      pg.hand = game.distribute_cards_to_player
+      pg.chips = pg.player.balance
+      pg.save
+    end
+
+    render json: {
+      message: "Game started",
+      initial_state: {
+        players: player_games.select("player_id, hand, chips"),
+        community_cards: game.comunity_cards,
+        pot: game.pot
+      }
+    }
   end
 
+  def next_phase
+    game = Game.find(params[:id])
+
+  end
 
   def game_params
     params.require(:game).permit(:name, :max_players)

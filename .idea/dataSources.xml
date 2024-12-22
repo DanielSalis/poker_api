@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="poker-db-local" uuid="bfca5101-5ee6-488a-8a27-bd39850813a6">
+    <data-source source="LOCAL" name="postgres@localhost" uuid="3c35f132-8ea5-4de5-920d-8f56f19d8abd">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
