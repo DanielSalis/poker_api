@@ -14,7 +14,7 @@ class GamesController < ApplicationController
         current_players: []
       }, status: :created
     else
-      render json: {message: game.errors.full_messages.to_sentence}, status: :internal_server_error
+      render json: { message: game.errors.full_messages.to_sentence }, status: :internal_server_error
     end
   end
 
@@ -78,10 +78,9 @@ class GamesController < ApplicationController
       }, status: :ok
     else
       render json: {
-        message: player_game.errors.full_messages.to_sentence,
+        message: player_game.errors.full_messages.to_sentence
       }, status: :internal_server_error
     end
-
   end
 
   def start
@@ -152,7 +151,6 @@ class GamesController < ApplicationController
     end
 
     player_game.last_action = action
-
   end
 
   def next_phase
@@ -220,7 +218,6 @@ class GamesController < ApplicationController
       winners: winners.first,
       hand: most_valuable_hand.rank
     }
-
   end
 
   def game_params

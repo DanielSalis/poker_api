@@ -52,5 +52,4 @@ class Game < ApplicationRecord
       update!(phase: itself.class.phases.keys[itself.class.phases[phase]+1])
     end
   end
-
 end
