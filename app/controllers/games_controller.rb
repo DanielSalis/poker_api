@@ -100,7 +100,7 @@ class GamesController < ApplicationController
     end
 
     game.initialize_cards
-    game.pot = BigDecimal(0)
+    game.pot = Integer(0)
 
     player_games.each do |pg|
       pg.status = "active"
