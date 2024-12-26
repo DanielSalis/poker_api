@@ -18,7 +18,7 @@ class Game < ApplicationRecord
   validates :name, presence: true
 
   def initialize_cards
-    self.cards = Card.full_deck.map(&:to_s).shuffle
+    self.cards = Deck.full_deck.map(&:to_s).shuffle
     self.comunity_cards = []
   end
 

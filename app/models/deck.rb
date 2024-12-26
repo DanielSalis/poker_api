@@ -1,4 +1,4 @@
-class Card
+class Deck
   attr_reader :value, :suit
 
   SUITS = %w[H D C S] # Naipes: Hearts, Diamonds, Clubs, Spades
@@ -15,5 +15,11 @@ class Card
 
   def self.full_deck
     VALUES.product(SUITS).map { |value, suit| new(value, suit) }
+  end
+
+  def testeFunc
+    render json: {
+      message: "teste"
+    }
   end
 end
