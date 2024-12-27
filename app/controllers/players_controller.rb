@@ -5,10 +5,10 @@ class PlayersController < ApplicationController
   end
 
   def create
-    player = Player.find(player_params[:player_id])
+    player = Player.find_by(username: player_params[:username])
 
-    if player
-      return json: { message: "Player already exists" }
+    if nil != player
+      return render json: { message: "Player already exists" }
     end
 
     player = Player.new(player_params)
