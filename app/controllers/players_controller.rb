@@ -8,7 +8,7 @@ class PlayersController < ApplicationController
     player = Player.find(player_params[:player_id])
 
     if player
-      return json: { message: "Player already exists" };
+      return json: { message: "Player already exists" }
     end
 
     player = Player.new(player_params)

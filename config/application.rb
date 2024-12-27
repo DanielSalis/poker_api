@@ -36,8 +36,8 @@ module PokerApi
 
         resource "*",
                  headers: :any,
-                 methods: [:get, :post, :put, :patch, :delete, :options, :head],
-                 expose: ["Authorization"],
+                 methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
+                 expose: [ "Authorization" ],
                  credentials: true
       end
     end
