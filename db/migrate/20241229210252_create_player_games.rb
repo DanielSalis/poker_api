@@ -3,10 +3,13 @@ class CreatePlayerGames < ActiveRecord::Migration[8.0]
     create_table :player_games do |t|
       t.references :player, null: false, foreign_key: true, type: :uuid
       t.references :game, null: false, foreign_key: true, type: :uuid
-      t.decimal :chips, precision: 10, scale: 2
-      t.string :status, null: false
+      t.integer :chips
+      t.string :status
       t.jsonb :hand
       t.integer :last_position
+      t.integer :bet
+      t.string :last_action
+
       t.timestamps
     end
   end

@@ -1,11 +1,25 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+one:
+  id: "4480d74c-e3d0-492b-9903-3cb0f288d716"
+  status: waiting
+  pot: 1
+  max_players: 1
+  name: MyString
+  cards: { [] }
+  comunity_cards:
+  available_cards:
+  phase: 1
+  is_showdown: false
+
+two:
+  id: "4480d74c-e3d0-492b-9903-3cb0f288d719"
+  status: waiting
+  pot: 1
+  max_players: 1
+  name: MyString
+  cards: { [] }
+  comunity_cards:
+  available_cards:
+  phase: 1
+  is_showdown: false
