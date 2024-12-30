@@ -8,7 +8,7 @@ Rails.application.routes.draw do
       post :join
       delete :leave
       post :start
-      post :action
+      post :perform_action, path: "action"
       post :next_phase, path: "next-phase"
       post :end
     end

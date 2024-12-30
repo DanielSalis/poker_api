@@ -119,7 +119,7 @@ class GamesController < ApplicationController
     }
   end
 
-  def action
+  def perform_action
     game = Game.find(params[:id])
     if game.nil?
       return render json: { message: "Game not found" }, status: :internal_server_error
@@ -132,7 +132,9 @@ class GamesController < ApplicationController
       render json: { message: "Player not active to play" }, status: :forbidden
     end
 
-    action_type = params[:action].to_s
+    # https://stackoverflow.com/questions/4671732/why-cant-i-use-a-param-called-action/4671770#4671770
+    # can't name a param as action
+    action_type = params[:action_type].to_s
     amount = Integer(params[:amount].to_s)
 
     case action_type
@@ -150,7 +152,8 @@ class GamesController < ApplicationController
       return render json: { message: "Invalid action" }, status: :internal_server_error
     end
 
-    player_game.last_action = action
+    player_game.last_action = action_type
+    render json: { "message": "Action performed successfully" }, status: :ok
   end
 
   def next_phase
@@ -191,9 +194,9 @@ class GamesController < ApplicationController
   end
 
   def end
-    game = Game.find(params[:id])
-    if game.nil?
-      return render json: { message: "Game not found" }, status: :internal_server_error
+    game = Game.find_by(id: params[:id])
+    if nil == game
+      return render json: { message: "Game does not exists" }, status: :internal_server_error
     end
 
     players = PlayerGame.where(game_id: game.id).where.not(status: "eliminated")
