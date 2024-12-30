@@ -1,38 +1,53 @@
 require "test_helper"
 
 class PlayersControllerTest < ActionDispatch::IntegrationTest
-  # setup do
-  #   @player = players(:one)
-  # end
+  setup do
+    @player = players(:one)
+  end
 
-  # test "should get index" do
-  #   get players_url, as: :json
-  #   assert_response :success
-  # end
+  # GET #index
+  test "should get index" do
+    get players_url, as: :json
+    assert_response :success
+  end
 
-  # test "should create player" do
-  #   assert_difference("Player.count") do
-  #     post players_url, params: { player: {} }, as: :json
-  #   end
 
-  #   assert_response :created
-  # end
+  # POST #create #####################################
+  test "should create player when it does not exist" do
+    assert_difference("Player.count") do
+      post players_url, params: { player: { username: "new_player", balance: 1000 } }, as: :json
+    end
 
-  # test "should show player" do
-  #   get player_url(@player), as: :json
-  #   assert_response :success
-  # end
+    assert_response :created
+  end
 
-  # test "should update player" do
-  #   patch player_url(@player), params: { player: {} }, as: :json
-  #   assert_response :success
-  # end
+  test "should not create player if it already exists" do
+    assert_no_difference("Player.count") do
+      post players_url, params: { player: { username: @player.username, balance: 500 } }, as: :json
+    end
 
-  # test "should destroy player" do
-  #   assert_difference("Player.count", -1) do
-  #     delete player_url(@player), as: :json
-  #   end
+    assert_response :success
+    response_body = JSON.parse(@response.body)
+    assert_equal "Player already exists", response_body["message"]
+  end
 
-  #   assert_response :no_content
-  # end
+  test "should not create player with invalid data" do
+    assert_no_difference("Player.count") do
+      post players_url, params: { player: { username: "", balance: -100 } }, as: :json
+    end
+
+    assert_response :internal_server_error
+    response_body = JSON.parse(@response.body)
+  end
+
+  # DELETE #destroy #######################################
+  test "should destroy player" do
+    assert_difference("Player.count", -1) do
+      delete player_url(@player), as: :json
+    end
+
+    assert_response :success
+    response_body = JSON.parse(@response.body)
+    assert_equal "Player deleted successfully", response_body["message"]
+  end
 end
