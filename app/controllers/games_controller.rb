@@ -4,6 +4,17 @@ class GamesController < ApplicationController
     render json: @games
   end
 
+  def show
+    @game = Game.find(params[:id])
+
+    players = PlayerGame.where(game_id: @game.id)
+
+    render json: {
+      data: @game,
+      players: players
+    }
+  end
+
   def create
     game = Game.new(game_params)
     if game.save
@@ -35,6 +46,11 @@ class GamesController < ApplicationController
 
     if PlayerGame.find_by(player_id: player.id)
       return render json: { message: "Player already in game" }, status: :forbidden
+    end
+
+    players_count = PlayerGame.where(game: game).count
+    if players_count >= game.max_players
+      return render json: { message: "Game room is full" }, status: :forbidden
     end
 
     player_game = PlayerGame.new(game: game, player: player, status: "active")

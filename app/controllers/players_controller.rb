@@ -8,7 +8,7 @@ class PlayersController < ApplicationController
     player = Player.find_by(username: player_params[:username])
 
     if nil != player
-      return render json: { message: "Player already exists" }
+      return render json: { message: "Player already exists" }, status: 401
     end
 
     player = Player.new(player_params)
