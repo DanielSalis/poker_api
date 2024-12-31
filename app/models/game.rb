@@ -2,6 +2,8 @@ class Game < ApplicationRecord
   has_many :player_games
   before_create :initialize_cards
 
+  after_update_commit :broadcast_game_state
+
   enum :status, {
     waiting: "waiting",
     ongoing: "ongoing",
@@ -51,5 +53,22 @@ class Game < ApplicationRecord
     else
       update!(phase: itself.class.phases.keys[itself.class.phases[phase]+1])
     end
+  end
+
+  private
+
+  def broadcast_game_state
+    players = PlayerGame.where(game: self.id)
+    GameChannel.broadcast_to(
+      self,
+      {
+        id: id,
+        status: status,
+        phase: phase,
+        pot: pot,
+        community_cards: comunity_cards,
+        players: players.map { |p| { id: p.id, username: p.username, balance: p.balance } }
+      }
+    )
   end
 end

@@ -7,7 +7,7 @@ class CreatePlayerGames < ActiveRecord::Migration[8.0]
       t.string :status
       t.jsonb :hand
       t.integer :last_position
-      t.integer :bet
+      t.integer :bet, default: 0
       t.string :last_action
 
       t.timestamps

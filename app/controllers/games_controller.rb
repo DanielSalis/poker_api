@@ -54,6 +54,8 @@ class GamesController < ApplicationController
     end
 
     player_game = PlayerGame.new(game: game, player: player, status: "active")
+
+
     if player_game.save
       render json: {
         message: "Player joined successfully"
@@ -169,6 +171,7 @@ class GamesController < ApplicationController
     end
 
     player_game.last_action = action_type
+    player_game.save
     render json: { "message": "Action performed successfully" }, status: :ok
   end
 

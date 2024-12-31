@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  mount ActionCable.server => '/cable'
   resources :players, only: [ :index, :create, :destroy ]
 
   resources :player_games
