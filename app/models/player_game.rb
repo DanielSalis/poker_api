@@ -2,6 +2,7 @@ class PlayerGame < ApplicationRecord
   belongs_to :game
   belongs_to :player
   after_update_commit :broadcast_player_action
+  after_create_commit :broadcast_player_join
 
   validates :game_id, :player_id, presence: true
 
@@ -31,7 +32,20 @@ class PlayerGame < ApplicationRecord
           bet: bet,
           chips: chips
         },
-        message: "#{player.username} realizou a ação #{last_action}."
+        message: "#{player.username} did the action: #{last_action}."
+      }
+    )
+  end
+
+  def broadcast_player_join
+    GameChannel.broadcast_to(
+      game,
+      {
+        action: {
+          player_id: player_id,
+          chips: chips
+        },
+        message: "#{player.username} has joined."
       }
     )
   end
