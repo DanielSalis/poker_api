@@ -1,7 +1,26 @@
 class GamesController < ApplicationController
   def index
-    @games = Game.all
-    render json: @games
+    games = Game.all.includes(:player_games)
+
+    games_data = games.map do |game|
+      {
+        id: game.id,
+        name: game.name,
+        status: game.status,
+        pot: game.pot,
+        max_players: game.max_players,
+        cards: game.cards,
+        community_cards: game.comunity_cards,
+        available_cards: game.available_cards,
+        phase: game.phase,
+        is_showdown: game.is_showdown,
+        created_at: game.created_at,
+        updated_at: game.updated_at,
+        player_count: game.player_games.count # Contagem de jogadores no jogo
+      }
+    end
+
+    render json: games_data
   end
 
   def show
@@ -53,10 +72,11 @@ class GamesController < ApplicationController
       return render json: { message: "Game room is full" }, status: :forbidden
     end
 
-    player_game = PlayerGame.new(game: game, player: player, status: "active")
+    player_game = PlayerGame.new(game: game, player: player, status: "active", chips: player.balance)
 
+    p = player_game.save
 
-    if player_game.save
+    if p
       render json: {
         message: "Player joined successfully"
       }, status: :created
@@ -127,6 +147,8 @@ class GamesController < ApplicationController
       pg.save
     end
 
+    game.save
+
     render json: {
       message: "Game started",
       initial_state: {
@@ -172,6 +194,7 @@ class GamesController < ApplicationController
 
     player_game.last_action = action_type
     player_game.save
+    game.save
     render json: { "message": "Action performed successfully" }, status: :ok
   end
 
@@ -206,6 +229,7 @@ class GamesController < ApplicationController
 
     game.next_phase
 
+    game.save
     render json: {
       phase: current_phase,
       community_cards: current_community_cards
