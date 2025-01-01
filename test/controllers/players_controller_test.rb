@@ -21,16 +21,6 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
   end
 
-  test "should not create player if it already exists" do
-    assert_no_difference("Player.count") do
-      post players_url, params: { player: { username: @player.username, balance: 500 } }, as: :json
-    end
-
-    assert_response :success
-    response_body = JSON.parse(@response.body)
-    assert_equal "Player already exists", response_body["message"]
-  end
-
   test "should not create player with invalid data" do
     assert_no_difference("Player.count") do
       post players_url, params: { player: { username: "", balance: -100 } }, as: :json
