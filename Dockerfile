@@ -37,5 +37,12 @@ COPY . /poker_api
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Command to run the server
+# Entrypoint script to create the database and run migrations
+COPY entrypoint.sh /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/entrypoint.sh
+
+# Use the entrypoint script
+ENTRYPOINT ["entrypoint.sh"]
+
+# Default command to run the server
 CMD ["rails", "server", "-b", "0.0.0.0"]
