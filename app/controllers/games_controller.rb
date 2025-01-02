@@ -26,11 +26,13 @@ class GamesController < ApplicationController
   def show
     @game = Game.find(params[:id])
 
-    players = PlayerGame.where(game_id: @game.id)
+    player_games = PlayerGame.where(game_id: @game.id).includes(:player)
 
     render json: {
       data: @game,
-      players: players
+      players: player_games.map do |pg|
+        pg.attributes.merge(username: pg.player.username)
+      end
     }
   end
 
