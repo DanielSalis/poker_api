@@ -5,6 +5,10 @@ class GameChannel < ApplicationCable::Channel
   end
 
   def unsubscribed
-    # Any cleanup needed when channel is unsubscribed
+    # current_player = Player.find(params[:player_id])
+    # ActionCable.server.broadcast(
+    #   "game_#{params[:game_id]}",
+    #   { action: "player_disconnected", player_id: current_player.id }
+    # )
   end
 end

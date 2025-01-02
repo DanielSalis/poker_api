@@ -2,7 +2,8 @@ class Game < ApplicationRecord
   has_many :player_games
   before_create :initialize_cards
 
-  after_update_commit :broadcast_game_state
+  # after_update_commit :broadcast_game_state
+  after_save_commit :broadcast_game_state
 
   enum :status, {
     waiting: "waiting",
@@ -27,6 +28,7 @@ class Game < ApplicationRecord
   def distribute_community_carts
     cards_array = cards.is_a?(Array) ? cards : JSON.parse(cards || "[]")
     community_cards = cards_array.pop(3)
+    update!(comunity_cards: community_cards)
     update!(cards: cards_array)
 
     community_cards
@@ -34,7 +36,9 @@ class Game < ApplicationRecord
 
   def withdraw_community_card
     cards_array = cards.is_a?(Array) ? cards : JSON.parse(cards || "[]")
-    community_cards = cards_array.pop(1)
+    community_cards = self.comunity_cards
+    community_cards.push(cards_array.pop(1)[0])
+    update!(comunity_cards: community_cards)
     update!(cards: cards_array)
 
     community_cards

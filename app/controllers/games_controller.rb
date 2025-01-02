@@ -212,18 +212,19 @@ class GamesController < ApplicationController
     current_community_cards = game.comunity_cards
 
     case current_phase
-    when 1
+    when "flop"
       game.distribute_community_carts
       game.is_showdown = false
-    when 2
+    when "turn"
       game.withdraw_community_card
-    when 3
+    when "river"
       game.withdraw_community_card
     else
       # enters here when phase is 0
       player_games.each do |pg|
         pg.hand = game.distribute_cards_to_player
       end
+      game.comunity_cards = []
     end
 
     game.next_phase
@@ -231,7 +232,7 @@ class GamesController < ApplicationController
     game.save
     render json: {
       phase: current_phase,
-      community_cards: current_community_cards
+      community_cards: game.comunity_cards
     }, status: :ok
   end
 
