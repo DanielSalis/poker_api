@@ -110,7 +110,6 @@ class GamesController < ApplicationController
     end
 
     if player_game.destroy
-      player_game.save
       render json: {
         message: "Player left successfully"
       }, status: :ok

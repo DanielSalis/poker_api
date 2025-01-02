@@ -3,6 +3,7 @@ class PlayerGame < ApplicationRecord
   belongs_to :player
   after_update_commit :broadcast_player_action
   after_create_commit :broadcast_player_join
+  after_destroy_commit :broadcast_player_left
 
   validates :game_id, :player_id, presence: true
 
@@ -32,6 +33,7 @@ class PlayerGame < ApplicationRecord
           bet: bet,
           chips: chips
         },
+        player_data: self,
         message: "#{player.username} did the action: #{last_action}."
       }
     )
@@ -42,10 +44,26 @@ class PlayerGame < ApplicationRecord
       game,
       {
         action: {
+          name: "join",
           player_id: player_id,
           chips: chips
         },
+        player_data: self,
         message: "#{player.username} has joined."
+      }
+    )
+  end
+
+  def broadcast_player_left
+    GameChannel.broadcast_to(
+      game,
+      {
+        action: {
+          name: "delete",
+          player_id: player_id,
+          chips: chips
+        },
+        message: "#{player.username}  - #{player.id} has left."
       }
     )
   end
