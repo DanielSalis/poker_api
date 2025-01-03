@@ -26,7 +26,7 @@ class GamesController < ApplicationController
   def show
     @game = Game.find(params[:id])
 
-    player_games = PlayerGame.where(game_id: @game.id).includes(:player)
+    player_games = PlayerGame.where(game_id: @game.id).includes(:player).sort_by{|p| p.created_at}
 
     render json: {
       data: @game,
@@ -143,7 +143,7 @@ class GamesController < ApplicationController
 
     player_games.each do |pg|
       pg.status = "active"
-      pg.hand = game.distribute_cards_to_player
+      # pg.hand = game.distribute_cards_to_player
       pg.chips = pg.player.balance
       pg.save
     end
@@ -209,7 +209,7 @@ class GamesController < ApplicationController
       return render json: { message: "Game must be ongoing to change phase" }, status: :internal_server_error
     end
 
-    player_games = PlayerGame.where(game_id: game.id).where.not(status: "eliminated")
+    player_games = PlayerGame.where(game_id: game.id).where.not(status: "eliminated").sort_by{|p| p.created_at}
     current_phase = game.phase
     current_community_cards = game.comunity_cards
 
@@ -225,8 +225,14 @@ class GamesController < ApplicationController
       # enters here when phase is 0
       player_games.each do |pg|
         pg.hand = game.distribute_cards_to_player
+        pg.save
       end
       game.comunity_cards = []
+    end
+
+    player_games.each do |pg|
+      pg.last_action = nil
+      pg.save
     end
 
     game.next_phase
@@ -234,6 +240,7 @@ class GamesController < ApplicationController
     game.save
     render json: {
       phase: current_phase,
+      next_phase: game.phase,
       community_cards: game.comunity_cards
     }, status: :ok
   end

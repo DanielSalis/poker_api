@@ -63,15 +63,16 @@ class Game < ApplicationRecord
 
   def broadcast_game_state
     players = PlayerGame.where(game: self.id)
+    game_data = self
+    game_data.attributes.merge(players: players)
     GameChannel.broadcast_to(
       self,
       {
-        id: id,
-        status: status,
-        phase: phase,
-        pot: pot,
-        community_cards: comunity_cards,
-        players: players.map { |p| { id: p.id, username: p.username, balance: p.balance } }
+        action: {
+          name: "update_game"
+        },
+        game_data: game_data,
+        message: "Game state has changed"
       }
     )
   end

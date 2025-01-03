@@ -28,6 +28,7 @@ class PlayerGame < ApplicationRecord
       game,
       {
         action: {
+          name: "action",
           player_id: player_id,
           last_action: last_action,
           bet: bet,
