@@ -1,9 +1,9 @@
 class PlayerGame < ApplicationRecord
   belongs_to :game
   belongs_to :player
-  after_update_commit :broadcast_player_action
-  after_create_commit :broadcast_player_join
-  after_destroy_commit :broadcast_player_left
+  # after_update_commit :broadcast_player_action
+  # after_create_commit :broadcast_player_join
+  # after_destroy_commit :broadcast_player_left
 
   validates :game_id, :player_id, presence: true
 

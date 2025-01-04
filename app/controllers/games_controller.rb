@@ -1,6 +1,6 @@
 class GamesController < ApplicationController
   def index
-    games = Game.all.includes(:player_games)
+    games = Game.all.includes(:player_games).sort_by{|game| game.created_at}
 
     games_data = games.map do |game|
       {
@@ -26,7 +26,7 @@ class GamesController < ApplicationController
   def show
     @game = Game.find(params[:id])
 
-    player_games = PlayerGame.where(game_id: @game.id).includes(:player).sort_by{|p| p.created_at}
+    player_games = PlayerGame.where(game_id: @game.id).includes(:player).sort_by {|p| p.created_at}
 
     render json: {
       data: @game,
@@ -79,6 +79,7 @@ class GamesController < ApplicationController
     p = player_game.save
 
     if p
+      player_game.send(:broadcast_player_join)
       render json: {
         message: "Player joined successfully"
       }, status: :created
@@ -112,6 +113,8 @@ class GamesController < ApplicationController
     end
 
     if player_game.destroy
+      player_game.save
+      player_game.send(:broadcast_player_left)
       render json: {
         message: "Player left successfully"
       }, status: :ok
@@ -145,6 +148,7 @@ class GamesController < ApplicationController
       pg.status = "active"
       # pg.hand = game.distribute_cards_to_player
       pg.chips = pg.player.balance
+      pg.bet = 0
       pg.save
     end
 
@@ -180,10 +184,9 @@ class GamesController < ApplicationController
 
     case action_type
     when "check"
-      player_game.bet = amount
-      game.pot = game.pot + amount
+      game.pot = game.pot + 0
     when "raise"
-      player_game.bet = player_game.bet + amount
+      player_game.chips = player_game.chips - amount
       game.pot = game.pot + amount
     when "fold"
       player_game.status = "folded"
@@ -196,6 +199,7 @@ class GamesController < ApplicationController
     player_game.last_action = action_type
     player_game.save
     game.save
+    player_game.send(:broadcast_player_action)
     render json: { "message": "Action performed successfully" }, status: :ok
   end
 
@@ -209,9 +213,8 @@ class GamesController < ApplicationController
       return render json: { message: "Game must be ongoing to change phase" }, status: :internal_server_error
     end
 
-    player_games = PlayerGame.where(game_id: game.id).where.not(status: "eliminated").sort_by{|p| p.created_at}
+    player_games = PlayerGame.where(game_id: game.id).where.not(status: "eliminated").sort_by {|p| p.created_at}
     current_phase = game.phase
-    current_community_cards = game.comunity_cards
 
     case current_phase
     when "flop"
@@ -222,7 +225,8 @@ class GamesController < ApplicationController
     when "river"
       game.withdraw_community_card
     else
-      # enters here when phase is 0
+      # enters here when phase is pre-flop
+      game.initialize_cards
       player_games.each do |pg|
         pg.hand = game.distribute_cards_to_player
         pg.save
