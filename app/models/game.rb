@@ -2,7 +2,7 @@ class Game < ApplicationRecord
   has_many :player_games
   before_create :initialize_cards
 
-  # after_update_commit :broadcast_game_state
+  after_update_commit :broadcast_game_state
   after_save_commit :broadcast_game_state
 
   enum :status, {
