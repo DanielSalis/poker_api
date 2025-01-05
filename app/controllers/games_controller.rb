@@ -265,7 +265,7 @@ class GamesController < ApplicationController
       player.status = "active"
     end
 
-    hands = players.map { |player| PokerHand.new(player.hand) }
+    hands = players.map { |player| PokerHand.new(player.hand + game.comunity_cards) }
 
     most_valuable_hand = hands.max
 
